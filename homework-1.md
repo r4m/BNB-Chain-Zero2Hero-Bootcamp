@@ -1,6 +1,6 @@
 
 
-###Decentralised Systems
+### Decentralised Systems
 
 Discuss in your team [Group 21](https://airtable.com/shr4M1HXv2q6UseN4/tblotSYReEmIuugYo) what a decentralised version of a game like monopoly would be
 like, if there was no software on a central server.
