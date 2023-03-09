@@ -67,7 +67,7 @@ contract BootcampContract {
     b) Using your choice of data structure, set up a variable called `balances` to keep track of the number of tokens that a user has.
 14. We want to allow the balances variable to be read from the contract, there are 2 ways to do this. What are those ways? Use one of the ways to make your balances variable visible to users of the contract.
 15. Now change the constructor, to give all of the total supply to the owner of the contract.
-16. Now add a public function called transfer to allow a user to transfer their tokens to another address. This function should have 2 parameters:
+16. Now add a public function called `transfer` to allow a user to transfer their tokens to another address. This function should have 2 parameters:
     - the amount to transfer and
     - the recipient address
 Why do we not need the sender's address here?
@@ -79,4 +79,69 @@ What would be the implication of having the sender's address as a parameter?
 Based on the requirements above, we created the contract reported below.
 
 ```solidity
+// SPDX-License-Identifier: UNLICENSED.
+
+pragma solidity 0.8.18;
+
+contract DogCoin {
+
+    uint256 totalSupply;
+
+    address public owner;
+
+    struct Payment {
+        address recipientAddress;
+        uint256 transferAmount;
+    }
+
+    mapping(address => uint) public balances;
+
+    mapping(address => Payment[]) public payments;
+
+    event TotalSupplyNotification(uint256);
+    event TransferNotification(uint256, address);
+
+    modifier onlyOwner () {
+        require(msg.sender==owner, "You are not allowed to do this.");
+        _;
+    }
+    constructor() {
+        totalSupply = 2000000;
+        owner = msg.sender;
+        balances[msg.sender] = totalSupply;
+    }
+
+    function transfer(address destination, uint256 amount) public {
+        balances[destination] += amount;
+        balances[msg.sender] -= amount;
+
+        payments[msg.sender].push(Payment({recipientAddress: destination, transferAmount: amount}));
+
+        emit TransferNotification(amount, destination);
+    }
+
+    function getPayments(address _address) public view returns (address[] memory, uint256[] memory) {
+        Payment[] storage userPayments = payments[_address];
+
+        address[] memory addresses = new address[](userPayments.length);
+        uint256[] memory amounts = new uint[](userPayments.length);
+        
+        for (uint i = 0; i < userPayments.length; i++) {
+            addresses[i] = userPayments[i].recipientAddress;
+            amounts[i] = userPayments[i].transferAmount;
+        }
+        
+        return (addresses, amounts);
+    }
+
+    function getTotalSupply() public view returns (uint256) {
+        return totalSupply;
+    }
+
+    function increaseTotalSupply() public onlyOwner {
+        totalSupply += 1000;
+        emit TotalSupplyNotification(totalSupply);
+    }
+
+}
 ```
